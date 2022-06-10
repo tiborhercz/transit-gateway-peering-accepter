@@ -1,0 +1,17 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "TGW"
+Resources:
+  TransitGateway:
+    Type: "AWS::EC2::TransitGateway"
+    Properties:
+      Description: "TGW"
+      AutoAcceptSharedAttachments: "disable"
+      DefaultRouteTableAssociation: "enable"
+      DnsSupport: "enable"
+      VpnEcmpSupport: "enable"
+  TransitGatewayParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/landingzone/vpc/tgw/${AWS::Region}/id"
+      Type: String
+      Value: !GetAtt TransitGateway.Id

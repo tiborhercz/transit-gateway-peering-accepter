@@ -1,0 +1,85 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+  TransitGatewayPeeringAttachmentEuWest1ToEuCentral1:
+    Type: AWS::EC2::TransitGatewayPeeringAttachment
+    Properties:
+      PeerAccountId: !Sub "${AWS::AccountId}"
+      PeerRegion: "eu-central-1"
+      PeerTransitGatewayId: "tgw-08ab4353eca440611"
+      TransitGatewayId: !Sub "{{resolve:ssm:/landingzone/vpc/tgw/eu-west-1/id}}"
+
+  Function:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: |
+          import cfnresponse
+          from cfn_lambda_handler import Handler
+          
+          handler = Handler()
+          
+          @handler.create
+          @handler.update
+          @handler.delete
+          def lambda_handler(event, context):
+            request_type = event["RequestType"]
+            
+            try:
+              if request_type in ["Create", "Update"]:
+                cfnresponse.send(event, context, cfnresponse.SUCCESS, {})
+              elif request_type == "Delete":
+                cfnresponse.send(event, context, cfnresponse.SUCCESS, {})
+              else:
+                raise ValueError(f"Request type {request_type} not recognised.")
+            except Exception as e:
+              cfnresponse.send(event, context, cfnresponse.FAILED, {})
+              raise e
+
+      FunctionName: custom-resource
+      Handler: index.lambda_handler
+      Role: !GetAtt ExecutionRole.Arn
+      Runtime: python3.7
+      Timeout: 30
+  CustomResource:
+    Type: Custom::Function
+    Properties:
+      ServiceToken: !GetAtt Function.Arn
+      TransitGatewayID: "test123345"
+
+  Logs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /aws/lambda/custom-resource
+      RetentionInDays: 30
+
+  ExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: '/'
+      Policies:
+        - PolicyName: admin
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: "*"
+                Resource: ['*']
+        - PolicyName: custom-resource-execution-role
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:DescribeLogGroup
+                  - logs:PutLogEvents
+                Resource: !GetAtt Logs.Arn
