@@ -4,9 +4,12 @@ deploy-tgw-eu-west-1:
 deploy-tgw-eu-central-1:
 	export REGION=eu-central-1 && \
 	aws cloudformation deploy --region $${REGION} --template-file ./transit-gateway.yaml --stack-name transit-gateway
+deploy-tgw-eu-west-2:
+	export REGION=eu-west-2 && \
+	aws cloudformation deploy --region $${REGION} --template-file ./transit-gateway.yaml --stack-name transit-gateway
 deploy-tgw-peering-eu-west-1:
 	export REGION=eu-west-1 && \
-	aws cloudformation deploy --capabilities CAPABILITY_IAM --region $${REGION} --template-file ./transit-gateway-peering.yaml --stack-name transit-gateway-peering
+	aws cloudformation deploy --capabilities CAPABILITY_IAM --region $${REGION} --template-file ./transit-gateway-peering-eu-west-1-to-eu-central-1.yaml --stack-name transit-gateway-peering
 update-lambda-code-tgw-peering:
 	export REGION=eu-west-1 && \
 	aws lambda --region $${REGION} update-function-code \

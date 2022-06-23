@@ -1,4 +1,5 @@
 import logging
+import time
 import cfnresponse
 import boto3
 from cfn_lambda_handler import Handler
@@ -20,9 +21,11 @@ def lambda_handler(event, context):
 
     try:
         if request_type in ["Create", "Update"]:
+            print(event['ResourceProperties']['TransitGatewayID'])
+            time.sleep(80)
+
             ec2_eu_central_1_resource.accept_transit_gateway_vpc_attachment(
-                TransitGatewayAttachmentId=event['ResourceProperties']['TransitGatewayID'],
-                DryRun=True
+                TransitGatewayAttachmentId=event['ResourceProperties']['TransitGatewayID']
             )
 
             responseData = {}

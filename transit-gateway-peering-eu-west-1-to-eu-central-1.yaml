@@ -18,15 +18,19 @@ Resources:
       Handler: index.lambda_handler
       Role: !GetAtt ExecutionRole.Arn
       Runtime: python3.7
-      Timeout: 30
+      Timeout: 120
+
   CustomResource:
     Type: Custom::Function
+    DependsOn: TransitGatewayPeeringAttachmentEuWest1ToEuCentral1
     Properties:
       ServiceToken: !GetAtt Function.Arn
+      TgwAttachmentAcceptorRegion: "eu-central-1"
       TransitGatewayID: !GetAtt TransitGatewayPeeringAttachmentEuWest1ToEuCentral1.TransitGatewayAttachmentId
 
   Logs:
     Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
     Properties:
       LogGroupName: /aws/lambda/custom-resource
       RetentionInDays: 30

@@ -4,9 +4,9 @@ Resources:
     Type: AWS::EC2::TransitGatewayPeeringAttachment
     Properties:
       PeerAccountId: !Sub "${AWS::AccountId}"
-      PeerRegion: "eu-central-1"
+      PeerRegion: "eu-west-2"
       PeerTransitGatewayId: "tgw-08ab4353eca440611"
-      TransitGatewayId: !Sub "{{resolve:ssm:/landingzone/vpc/tgw/eu-west-1/id}}"
+      TransitGatewayId: !Sub "{{resolve:ssm:/landingzone/vpc/tgw/eu-central-1/id}}"
 
   Function:
     Type: AWS::Lambda::Function
@@ -27,6 +27,7 @@ Resources:
 
   Logs:
     Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
     Properties:
       LogGroupName: /aws/lambda/custom-resource
       RetentionInDays: 30
