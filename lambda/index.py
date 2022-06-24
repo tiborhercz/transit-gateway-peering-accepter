@@ -9,9 +9,6 @@ handler = Handler()
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-ec2_eu_central_1_resource = boto3.client('ec2', 'eu-central-1')
-
-
 @handler.create
 @handler.update
 @handler.delete
@@ -19,12 +16,14 @@ def lambda_handler(event, context):
     logger.info(event)
     request_type = event["RequestType"]
 
+    ec2_eu_central_1_resource = boto3.client('ec2', 'eu-central-1')
+
     try:
         if request_type in ["Create", "Update"]:
-            print(event['ResourceProperties']['TransitGatewayID'])
+            # Wait for the transit gateway attachment to be ready
             time.sleep(80)
 
-            ec2_eu_central_1_resource.accept_transit_gateway_vpc_attachment(
+            ec2_eu_central_1_resource.accept_transit_gateway_peering_attachment(
                 TransitGatewayAttachmentId=event['ResourceProperties']['TransitGatewayID']
             )
 
