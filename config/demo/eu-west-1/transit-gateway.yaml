@@ -1,0 +1,3 @@
+template:
+  path: transit-gateway.yaml
+depends_on: ["demo/eu-central-1/transit-gateway.yaml"]

@@ -26,7 +26,7 @@ Resources:
       Handler: index.handler
       Role: !GetAtt ExecutionRole.Arn
       Runtime: python3.9
-      Timeout: 240
+      Timeout: 30
   CustomResource:
     Type: Custom::Function
     Properties:

@@ -1,0 +1,25 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "VPC"
+Parameters:
+  CidrBlock:
+    Type: String
+  SubnetCidrBlock:
+    Type: String
+
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref CidrBlock
+
+  RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref SubnetCidrBlock
+

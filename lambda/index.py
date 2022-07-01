@@ -1,18 +1,15 @@
 import logging
-import time
+import sys
+from time import sleep
+
 import cfnresponse
 import boto3
-from cfn_lambda_handler import Handler
-
-handler = Handler()
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-@handler.create
-@handler.update
-@handler.delete
-def lambda_handler(event, context):
+
+def handler(event, context):
     logger.info(event)
     request_type = event["RequestType"]
 
@@ -20,15 +17,25 @@ def lambda_handler(event, context):
 
     try:
         if request_type in ["Create", "Update"]:
-            # Wait for the transit gateway attachment to be ready
-            time.sleep(80)
 
-            ec2_eu_central_1_resource.accept_transit_gateway_peering_attachment(
+            complete = False
+            while not complete:
+                response = ec2_eu_central_1_resource.describe_transit_gateway_peering_attachments(
+                    TransitGatewayAttachmentIds=[event['ResourceProperties']['TransitGatewayID']]
+                )
+
+                print("TransitGatewayPeeringAttachments-State=" + response["TransitGatewayPeeringAttachments"][0]["State"])
+
+                if response["TransitGatewayPeeringAttachments"][0]["State"] == 'pendingAcceptance':
+                    complete = True
+                sleep(10)
+
+            response = ec2_eu_central_1_resource.accept_transit_gateway_peering_attachment(
                 TransitGatewayAttachmentId=event['ResourceProperties']['TransitGatewayID']
             )
 
             responseData = {}
-            responseData['Data'] = event['ResourceProperties']['TransitGatewayID']
+            responseData['PhysicalResourceId'] = event['ResourceProperties']['TransitGatewayID']
 
             print(responseData)
 
@@ -42,3 +49,15 @@ def lambda_handler(event, context):
         logger.exception("Operation failed, sending response to CloudFormation")
         cfnresponse.send(event, context, cfnresponse.FAILED, {})
         raise e
+
+
+if __name__ == "__main__":
+    handler({
+        "RequestType": "Create",
+        "ResponseURL": "https://httpbin.org",
+        "ResourceProperties": {
+            "Region": sys.argv[1],
+            "TransitGatewayID": sys.argv[2]
+        }},
+        {}
+    )

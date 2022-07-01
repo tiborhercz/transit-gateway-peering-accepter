@@ -17,5 +17,7 @@ Resources:
       Value: !GetAtt TransitGateway.Id
 
 Outputs:
-  TransitGatewayId: !GetAtt TransitGateway.Id
-  Region: !Ref AWS::Region
+  TransitGatewayId:
+    Value: !GetAtt TransitGateway.Id
+  Region:
+    Value: !Ref AWS::Region
