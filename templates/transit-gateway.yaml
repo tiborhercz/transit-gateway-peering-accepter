@@ -9,6 +9,9 @@ Resources:
       DefaultRouteTableAssociation: "enable"
       DnsSupport: "enable"
       VpnEcmpSupport: "enable"
+      Tags:
+        - Key: "Name"
+          Value: "TransitGateway"
 
 Outputs:
   TransitGatewayId:

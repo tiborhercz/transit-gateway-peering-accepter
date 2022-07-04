@@ -8,13 +8,16 @@ Parameters:
     Type: String
 
 Resources:
-  TransitGatewayPeeringAttachmentEuWest1ToEuCentral1:
+  TransitGatewayPeeringAttachment:
     Type: AWS::EC2::TransitGatewayPeeringAttachment
     Properties:
       PeerAccountId: !Sub "${AWS::AccountId}"
       PeerRegion: !Ref PeerRegion
       PeerTransitGatewayId: !Ref PeerTransitGatewayId
       TransitGatewayId: !Ref TransitGatewayId
+      Tags:
+        - Key: "Name"
+          Value: "TransitGatewayPeeringAttachment"
 
   TransitGatewayPeeringAcceptor:
     Type: AWS::Lambda::Function
@@ -36,37 +39,33 @@ Resources:
               logger.info(event)
               request_type = event["RequestType"]
 
-              ec2_eu_central_1_resource = boto3.client('ec2', 'eu-central-1')
+              ec2_resource = boto3.client('ec2', event['ResourceProperties']['PeerRegion'])
 
               try:
                   if request_type in ["Create", "Update"]:
 
                       complete = False
                       while not complete:
-                          response = ec2_eu_central_1_resource.describe_transit_gateway_peering_attachments(
+                          response = ec2_resource.describe_transit_gateway_peering_attachments(
                               TransitGatewayAttachmentIds=[event['ResourceProperties']['TransitGatewayID']]
                           )
 
-                          print("TransitGatewayPeeringAttachments-State=" + response["TransitGatewayPeeringAttachments"][0]["State"])
+                          print(response)
 
                           if response["TransitGatewayPeeringAttachments"][0]["State"] == 'pendingAcceptance':
                               complete = True
                           sleep(10)
 
-                      response = ec2_eu_central_1_resource.accept_transit_gateway_peering_attachment(
+                      response = ec2_resource.accept_transit_gateway_peering_attachment(
                           TransitGatewayAttachmentId=event['ResourceProperties']['TransitGatewayID']
                       )
 
                       print(response)
 
-                      responseData = {}
-                      responseData['PhysicalResourceId'] = event['ResourceProperties']['TransitGatewayID']
-
-                      print(responseData)
-
                       cfnresponse.send(event, context, cfnresponse.SUCCESS, {})
                   elif request_type == "Delete":
-                      # Cleanup
+                      # No action needed because this custom resource only executes an accept request
+                      # and doesn't manage a physical resource therefore nothing can be deleted
                       cfnresponse.send(event, context, cfnresponse.SUCCESS, {})
                   else:
                       raise ValueError(f"Request type {request_type} not recognised.")
@@ -91,12 +90,16 @@ Resources:
       Role: !GetAtt ExecutionRole.Arn
       Runtime: python3.9
       Timeout: 240
+      Tags:
+        - Key: "Name"
+          Value: "TransitGatewayPeeringAcceptor"
 
   CustomResource:
     Type: Custom::Function
     Properties:
       ServiceToken: !GetAtt TransitGatewayPeeringAcceptor.Arn
-      TransitGatewayID: !GetAtt TransitGatewayPeeringAttachmentEuWest1ToEuCentral1.TransitGatewayAttachmentId
+      PeerRegion: !Ref PeerRegion
+      TransitGatewayID: !GetAtt TransitGatewayPeeringAttachment.TransitGatewayAttachmentId
 
   Logs:
     Type: AWS::Logs::LogGroup

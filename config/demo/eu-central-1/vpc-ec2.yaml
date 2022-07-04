@@ -1,0 +1,6 @@
+template:
+  path: vpc-ec2.yaml
+parameters:
+  CidrBlock: "10.1.0.0/16"
+  SubnetCidrBlock: "10.1.1.0/24"
+  KeyName: "tgw-test-frankfurt"
