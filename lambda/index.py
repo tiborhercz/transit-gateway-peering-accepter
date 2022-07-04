@@ -34,6 +34,8 @@ def handler(event, context):
                 TransitGatewayAttachmentId=event['ResourceProperties']['TransitGatewayID']
             )
 
+            print(response)
+
             responseData = {}
             responseData['PhysicalResourceId'] = event['ResourceProperties']['TransitGatewayID']
 

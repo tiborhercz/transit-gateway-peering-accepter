@@ -9,12 +9,6 @@ Resources:
       DefaultRouteTableAssociation: "enable"
       DnsSupport: "enable"
       VpnEcmpSupport: "enable"
-  TransitGatewayParameter:
-    Type: AWS::SSM::Parameter
-    Properties:
-      Name: !Sub "/landingzone/vpc/tgw/${AWS::Region}/id"
-      Type: String
-      Value: !GetAtt TransitGateway.Id
 
 Outputs:
   TransitGatewayId:

@@ -1,21 +1,32 @@
 deploy-tgw-eu-west-1:
 	export REGION=eu-west-1 && \
 	aws cloudformation deploy --region $${REGION} --template-file ./transit-gateway.yaml --stack-name transit-gateway
+
 deploy-tgw-eu-central-1:
 	export REGION=eu-central-1 && \
 	aws cloudformation deploy --region $${REGION} --template-file ./transit-gateway.yaml --stack-name transit-gateway
+
 deploy-tgw-eu-west-2:
 	export REGION=eu-west-2 && \
 	aws cloudformation deploy --region $${REGION} --template-file ./transit-gateway.yaml --stack-name transit-gateway
+
 deploy-tgw-peering-eu-west-1:
 	export REGION=eu-west-1 && \
 	aws cloudformation deploy --capabilities CAPABILITY_IAM --region $${REGION} --template-file ./transit-gateway-peering-eu-west-1-to-eu-central-1.yaml --stack-name transit-gateway-peering
+
+deploy-tgw:
+	 sceptre launch demo
+
+update-inline-lambda-code:
+	aws-cfn-update lambda-inline-code --resource TransitGatewayPeeringAcceptor --file lambda/index.py templates/transit-gateway-peering.yaml
+
 update-lambda-code-tgw-peering:
 	export REGION=eu-west-1 && \
 	aws lambda --region $${REGION} update-function-code \
         --function-name custom-resource \
         --s3-bucket lambda-code-bucket-binx-3252 \
         --s3-key lambda-code.zip
+
 zip-lambda-code:
 	cd lambda && \
 	rm -r package && \
