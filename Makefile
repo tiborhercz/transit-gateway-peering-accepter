@@ -1,6 +1,6 @@
 deploy-tgw-eu-west-1:
 	export REGION=eu-west-1 && \
-	aws cloudformation deploy --region $${REGION} --template-file ./transit-gateway.yaml --stack-name transit-gateway
+	aws cloudformation deploy --region eu-west-1 --template-file ./test.yaml --stack-name test123
 
 deploy-tgw-eu-central-1:
 	export REGION=eu-central-1 && \

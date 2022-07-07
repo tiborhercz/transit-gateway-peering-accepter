@@ -11,7 +11,7 @@ Resources:
       VpnEcmpSupport: "enable"
       Tags:
         - Key: "Name"
-          Value: "TransitGateway"
+          Value: "TransitGatewayPeeringDemo"
 
 Outputs:
   TransitGatewayId:

@@ -18,18 +18,8 @@ def handler(event, context):
     try:
         if request_type in ["Create", "Update"]:
 
-            complete = False
-            while not complete:
-                response = ec2_resource.describe_transit_gateway_peering_attachments(
-                    TransitGatewayAttachmentIds=[event['ResourceProperties']['TransitGatewayID']]
-                )
-
-                print("Transit Gateway Peering Attachment describe response:")
-                print(response)
-
-                if response["TransitGatewayPeeringAttachments"][0]["State"] == 'pendingAcceptance':
-                    complete = True
-                sleep(10)
+            wait_for_attachment_state('pendingAcceptance', event['ResourceProperties']['TransitGatewayID'],
+                                      ec2_resource, 30)
 
             response = ec2_resource.accept_transit_gateway_peering_attachment(
                 TransitGatewayAttachmentId=event['ResourceProperties']['TransitGatewayID']
@@ -37,6 +27,9 @@ def handler(event, context):
 
             print("Transit Gateway Peering Attachment accept response:")
             print(response)
+
+            wait_for_attachment_state('available', event['ResourceProperties']['TransitGatewayID'],
+                                      ec2_resource, 10)
 
             cfnresponse.send(event, context, cfnresponse.SUCCESS, {})
         elif request_type == "Delete":
@@ -49,6 +42,23 @@ def handler(event, context):
         logger.exception("Operation failed, sending response to CloudFormation")
         cfnresponse.send(event, context, cfnresponse.FAILED, {})
         raise e
+
+
+def wait_for_attachment_state(state, transit_gateway_attachment_id, ec2_resource, sleep_time):
+    print("Waiting for %s to become state " %(transit_gateway_attachment_id,state))
+
+    complete = False
+    while not complete:
+        response = ec2_resource.describe_transit_gateway_peering_attachments(
+            TransitGatewayAttachmentIds=[transit_gateway_attachment_id]
+        )
+
+        print("Transit Gateway Peering Attachment describe response:")
+        print(response)
+
+        if response["TransitGatewayPeeringAttachments"][0]["State"] == state:
+            complete = True
+        sleep(sleep_time)
 
 
 if __name__ == "__main__":
