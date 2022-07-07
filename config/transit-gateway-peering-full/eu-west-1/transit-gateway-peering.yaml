@@ -1,6 +1,6 @@
 template:
   path: transit-gateway-peering.yaml
 parameters:
-  TransitGatewayId: !stack_output demo/eu-west-1/transit-gateway.yaml::TransitGatewayId
-  PeerTransitGatewayId: !stack_output demo/eu-central-1/transit-gateway.yaml::TransitGatewayId
-  PeerRegion: !stack_output demo/eu-central-1/transit-gateway.yaml::Region
+  TransitGatewayId: !stack_output transit-gateway-peering-full/eu-west-1/transit-gateway.yaml::TransitGatewayId
+  PeerTransitGatewayId: !stack_output transit-gateway-peering-full/eu-central-1/transit-gateway.yaml::TransitGatewayId
+  PeerRegion: !stack_output transit-gateway-peering-full/eu-central-1/transit-gateway.yaml::Region

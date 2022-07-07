@@ -1,6 +1,6 @@
 template:
   path: vpc-ec2.yaml
-depends_on: ["demo/eu-central-1/transit-gateway.yaml"]
+depends_on: ["transit-gateway-peering-full/eu-central-1/transit-gateway.yaml"]
 parameters:
   CidrBlock: "10.1.0.0/16"
   SubnetCidrBlock: "10.1.1.0/24"
