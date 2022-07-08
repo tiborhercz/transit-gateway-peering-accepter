@@ -1,0 +1,3 @@
+template:
+  path: transit-gateway.yaml
+depends_on: ["transit-gateway-peering-minimal/eu-central-1/transit-gateway.yaml"]

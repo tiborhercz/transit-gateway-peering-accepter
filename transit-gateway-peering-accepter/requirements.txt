@@ -1,0 +1,2 @@
+cfnresponse==1.1.2
+cfn-lambda-handler==1.4.0

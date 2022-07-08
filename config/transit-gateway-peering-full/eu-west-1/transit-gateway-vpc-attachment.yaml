@@ -1,0 +1,9 @@
+template:
+  path: transit-gateway-vpc-attachment.yaml
+parameters:
+  SubnetId: !stack_output transit-gateway-peering-full/eu-west-1/vpc-ec2.yaml::PublicSubnet
+  VpcId: !stack_output transit-gateway-peering-full/eu-west-1/vpc-ec2.yaml::VpcId
+  TransitGatewayId: !stack_output transit-gateway-peering-full/eu-west-1/transit-gateway.yaml::TransitGatewayId
+  TransitGatewayPeeringAttachmentId: !stack_output transit-gateway-peering-full/eu-west-1/transit-gateway-peering.yaml::TransitGatewayPeeringAttachmentId
+  VpcRouteTable: !stack_output transit-gateway-peering-full/eu-west-1/vpc-ec2.yaml::RouteTable
+  TGWDestinationCidrBlock: "10.1.0.0/16"
